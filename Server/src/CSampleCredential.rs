@@ -1,8 +1,8 @@
 // 引入必要的同步原语和Win32 API
 use std::sync::{Arc, Mutex};
 use windows::Win32::{
-    Foundation::{ERROR_NOT_READY, E_NOTIMPL}, Graphics::Gdi::HBITMAP, Security::Credentials::{CredPackAuthenticationBufferW, CRED_PACK_FLAGS}, System::Com::CoTaskMemAlloc, UI::Shell::{
-        ICredentialProviderCredential, ICredentialProviderCredentialEvents, ICredentialProviderCredential_Impl, CPFIS_NONE, CPFS_DISPLAY_IN_BOTH, CPGSR_RETURN_CREDENTIAL_FINISHED, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION, CREDENTIAL_PROVIDER_FIELD_INTERACTIVE_STATE, CREDENTIAL_PROVIDER_FIELD_STATE, CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE, CREDENTIAL_PROVIDER_STATUS_ICON
+    Foundation::{ERROR_NOT_READY, E_NOTIMPL, STATUS_SUCCESS}, Graphics::Gdi::HBITMAP, Security::Credentials::{CredPackAuthenticationBufferW, CRED_PACK_FLAGS}, System::Com::CoTaskMemAlloc, UI::Shell::{
+        ICredentialProviderCredential, ICredentialProviderCredentialEvents, ICredentialProviderCredential_Impl, CPFIS_NONE, CPFS_DISPLAY_IN_BOTH, CPGSR_RETURN_CREDENTIAL_FINISHED, CPSI_ERROR, CPSI_NONE, CREDENTIAL_PROVIDER_CREDENTIAL_SERIALIZATION, CREDENTIAL_PROVIDER_FIELD_INTERACTIVE_STATE, CREDENTIAL_PROVIDER_FIELD_STATE, CREDENTIAL_PROVIDER_GET_SERIALIZATION_RESPONSE, CREDENTIAL_PROVIDER_STATUS_ICON
     }
 };
 use windows_core::{implement, BOOL, PCWSTR, PWSTR};
@@ -100,7 +100,7 @@ impl ICredentialProviderCredential_Impl for SampleCredential_Impl {
     fn GetStringValue(&self, dwfieldid: u32) -> windows_core::Result<PWSTR> {
         info!("SampleCredential::GetStringValue - 获取字段 {} 的文本内容", dwfieldid);
         let val = match dwfieldid {
-            1 => "Manson Winlogon自动登录",  // 字段1的文本内容
+            1 => "FaceWinUnlock-Tauri-请勿点击此磁贴",  // 字段1的文本内容
             _ => {
                 warn!("SampleCredential::GetStringValue - 字段 {} 无文本内容", dwfieldid);
                 ""
@@ -249,17 +249,39 @@ impl ICredentialProviderCredential_Impl for SampleCredential_Impl {
         Ok(())
     }
 
-    /// 报告登录结果（未实现）
+    /// 报告登录结果
     fn ReportResult(
         &self, 
-        _ntsstatus: windows::Win32::Foundation::NTSTATUS, 
+        ntsstatus: windows::Win32::Foundation::NTSTATUS, 
         _ntssubstatus: windows::Win32::Foundation::NTSTATUS, 
-        _ppszoptionalstatustext: *mut PWSTR, 
-        _pcpsioptionalstatusicon: *mut CREDENTIAL_PROVIDER_STATUS_ICON
+        ppszoptionalstatustext: *mut PWSTR, 
+        pcpsioptionalstatusicon: *mut CREDENTIAL_PROVIDER_STATUS_ICON
     ) -> windows_core::Result<()> {
-        info!("SampleCredential::ReportResult - 报告登录结果（空实现）");
+        info!("SampleCredential::ReportResult - 报告登录结果");
         unsafe {
-            *_ppszoptionalstatustext = PWSTR(std::ptr::null_mut()); // 返回空文本
+            if ntsstatus != STATUS_SUCCESS {
+                // 如果登录失败
+                let mut creds = self.shared_creds.lock().unwrap();
+                // 清空错误凭据
+                creds.username.clear();
+                creds.password.clear();
+                creds.is_ready = false;
+
+                // 设置错误提示文本
+                let error_text = "用户名或密码错误，请点击自己账户，手动输入密码进入系统。";
+                let utf16: Vec<u16> = error_text.encode_utf16().chain(Some(0)).collect();
+                let ptr = windows::Win32::System::Com::CoTaskMemAlloc(utf16.len() * 2);
+                if !ptr.is_null() {
+                    std::ptr::copy_nonoverlapping(utf16.as_ptr(), ptr as *mut u16, utf16.len());
+                    *ppszoptionalstatustext = PWSTR(ptr as *mut _);
+                }
+
+                *pcpsioptionalstatusicon = CPSI_ERROR;
+            } else {
+                // 登录成功
+                *ppszoptionalstatustext = PWSTR(std::ptr::null_mut());
+                *pcpsioptionalstatusicon = CPSI_NONE;
+            }
         }
         Ok(())
     }

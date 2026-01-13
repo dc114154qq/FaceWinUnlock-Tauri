@@ -199,13 +199,19 @@ impl ICredentialProvider_Impl for SampleProvider_Impl {
         info!( "是否显示图标: {}", show_tile);
 
         unsafe {
-            *pdwcount = if show_tile { 1 } else { 0 };
             // 如果管道已经收到了数据，告诉系统我们要自动登录
             if let Some(l) = &inner.listener {
                 if l.is_unlocked.load(Ordering::SeqCst) {
+                    *pdwcount = 1;
                     *pdwdefault = 0;
                     *pbautologonwithdefault = BOOL::from(true); // 触发自动登录
                 }
+            } else {
+                *pdwcount = if show_tile { 1 } else { 0 };
+                // 初始化默认凭据索引和自动登录开关
+                *pdwdefault = 0;
+                // 默认关闭自动登录
+                *pbautologonwithdefault = BOOL::from(false);
             }
         }
         info!("SampleProvider::GetCredentialCount - 凭据数量: 1，默认索引: 0");
