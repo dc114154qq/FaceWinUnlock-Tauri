@@ -1,7 +1,7 @@
-#从别处fork来的，源地址：https://github.com/zs1083339604/FaceWinUnlock-Tauri/tree/main
+从别处fork来的，源地址：https://github.com/zs1083339604/FaceWinUnlock-Tauri/tree/main
 加了一个第一次开机就能够面部识别解锁的功能。
 全程依靠ChatGPT-5.2codex完成，不保证安全性，不保证安全性！只是在自己的电脑上测试可用，想着干脆发出来，安装包已发到release。
-以下是该项目原文：#
+以下是该项目原文：
 
 
 # FaceWinUnlock-Tauri
