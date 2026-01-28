@@ -1,3 +1,9 @@
+#从别处fork来的，源地址：https://github.com/zs1083339604/FaceWinUnlock-Tauri/tree/main
+加了一个第一次开机就能够面部识别解锁的功能。
+全程依靠ChatGPT-5.2codex完成，不保证安全性，不保证安全性！只是在自己的电脑上测试可用，想着干脆发出来，安装包已发到release。
+以下是该项目原文：#
+
+
 # FaceWinUnlock-Tauri
 
 **FaceWinUnlock-Tauri** 是一款基于 Tauri 框架开发的现代化 Windows 面容识别解锁增强软件。它通过自定义 Credential Provider (DLL) 注入 Windows 登录界面，结合前端 Vue 3 和后端 OpenCV 人脸识别算法，为用户提供类似 Windows Hello 的解锁体验。
