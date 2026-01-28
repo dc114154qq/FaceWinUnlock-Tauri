@@ -13,7 +13,6 @@ EBWebView/
 *.face
 *.faceimg
 .tmp/
-data/
 UI/src-tauri/resources/*.dll
 UI/src-tauri/resources/*.onnx
 
