@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "facewinunlock-tauri",
+  "version": "0.2.1",
+  "identifier": "com.administrator.facewinunlock-tauri",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "facewinunlock-tauri-吾爱破解首发",
+        "width": 1280,
+        "height": 720,
+        "minWidth": 1280,
+        "minHeight": 720,
+        "visible": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "resources/FaceWinUnlock-Tauri.dll": "resources/FaceWinUnlock-Tauri.dll",
+      "resources/opencv_world4120.dll": "opencv_world4120.dll",
+      "resources/face_detection_yunet_2023mar.onnx": "resources/face_detection_yunet_2023mar.onnx",
+      "resources/face_recognition_sface_2021dec.onnx": "resources/face_recognition_sface_2021dec.onnx"
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "perMachine"
+      }
+    }
+  }
+}
